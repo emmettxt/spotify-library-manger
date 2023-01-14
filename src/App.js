@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { useEffect, useState } from "react";
+import { Container } from "react-bootstrap";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import CallbackPage from "./components/CallbackPage";
+import HomePage from "./components/HomePage";
+import Login from "./components/Login";
+import PlaylistPage from "./components/PlaylistPage/PlaylistPage.js";
 function App() {
+  const [auth, setAuth] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const SavedUser = JSON.parse(localStorage.getItem("Spotify_loggedIn_user"));
+    if (SavedUser) {
+      setAuth(SavedUser);
+    } else {
+      navigate("login");
+    }
+  }, [navigate]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <Routes>
+        <Route path="/" element={<HomePage auth={auth} setAuth={setAuth} />} />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/redirect"
+          element={<CallbackPage setAuth={setAuth} />}
+        ></Route>
+        <Route path="/playlist" element={<PlaylistPage auth={auth} />} />
+      </Routes>
+    </Container>
   );
 }
 
