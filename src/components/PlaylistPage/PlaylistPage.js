@@ -1,5 +1,45 @@
-import { useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import {
+  Accordion,
+  Button,
+  Card,
+  Col,
+  Form,
+  Row,
+  ToggleButton,
+} from "react-bootstrap";
+import spotifyService from "../../services/spotify";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+const AlbumCard = ({ album, isSelected, removeAlbum, selectAlbum }) => {
+  const handleClick = (event) => {
+    event.preventDefault();
+    if (isSelected) {
+      removeAlbum(album);
+    } else {
+      selectAlbum(album);
+    }
+  };
+  return (
+    <Card
+      className={"h-100 " + (isSelected ? "text-white bg-success" : null)}
+      onClick={handleClick}
+      as="button"
+    >
+      <Card.Img
+        variant="top"
+        src={album.images[0].url}
+        loading="lazy"
+        as={LazyLoadImage}
+      />
+      <Card.Body className="align-middle">
+        <Card.Title>{album.name}</Card.Title>
+        <Card.Subtitle>
+          {album.artists.map((a) => a.name).toString()}
+        </Card.Subtitle>
+      </Card.Body>
+    </Card>
+  );
+};
 
 const PlaylistPage = ({ auth }) => {
   const [playlistName, setPlaylistName] = useState("");
@@ -15,27 +55,112 @@ const PlaylistPage = ({ auth }) => {
       return;
     }
   };
-  return(
-  <Form onSubmit={handleSubmit} validated={validated}>
-    <Form.Group className="mb-3">
-      <Form.Label>Playlist Name</Form.Label>
-      <Form.Control
-        name="name"
-        type="text"
-        required
-        value={playlistName}
-        onChange={handlePlaylistNameChange}
-        isInvalid
-      />
-    </Form.Group>
-    <Form.Group isInValid hasValidation>
-      <Form.Check isInValid label="playlists" name="playlists" />
-      <Form.Check label="Saved Albums" name="albums" />
-    </Form.Group>
-    <Button variant="primary" type="submit">
-      Create Playlist
-    </Button>
-  </Form>);
+
+  const [savedAlbums, setSavedAlbums] = useState([]);
+  useEffect(() => {
+    const getAllAlbums = async () => {
+      let hasNext = true;
+      let offset = 0;
+      for (offset = 0; hasNext; offset += 50) {
+        const next50 = await spotifyService.getCurrentUsersSavedAlbums(
+          auth.access_token,
+          50,
+          offset
+        );
+        hasNext = !!next50.next;
+        setSavedAlbums((savedAlbums) => [...savedAlbums, ...next50.items]);
+      }
+    };
+    getAllAlbums();
+  }, [auth]);
+
+  const [selectedAlbums, setSelectedAlbums] = useState({});
+  const selectAlbum = (album) => {
+    const id = album.id;
+    setSelectedAlbums((selectedAlbums) => ({ ...selectedAlbums, [id]: album }));
+  };
+  const removeAlbum = (album) => {
+    const { [album.id]: _, ...rest } = selectedAlbums;
+    setSelectedAlbums(rest);
+  };
+  const handleSelectAllAlbums = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (allAlbumsSelected) {
+      setSelectedAlbums({});
+    } else {
+      const allAlbumsObject = savedAlbums.reduce(
+        (object, { album }) => ({ ...object, [album.id]: album }),
+        {}
+      );
+      setSelectedAlbums(allAlbumsObject);
+    }
+  };
+  const allAlbumsSelected =
+    Object.keys(selectedAlbums).length === savedAlbums.length;
+  console.table({
+    "Object.keys(selectedAlbums).length": Object.keys(selectedAlbums).length,
+    "savedAlbums.length": savedAlbums.length,
+  });
+  console.log(allAlbumsSelected);
+  return (
+    <>
+      <Form onSubmit={handleSubmit} validated={validated}>
+        <Form.Group className="mb-3">
+          <Form.Label>Playlist Name</Form.Label>
+          <Form.Control
+            name="name"
+            type="text"
+            required
+            value={playlistName}
+            onChange={handlePlaylistNameChange}
+            isInvalid
+          />
+        </Form.Group>
+        <Form.Group isInvalid>
+          <Form.Label>Include</Form.Label>
+          <Accordion>
+            <Accordion.Item>
+              <Accordion.Header>Albums</Accordion.Header>
+              <Accordion.Body>
+                <ToggleButton
+                  onClick={handleSelectAllAlbums}
+                  checked={allAlbumsSelected}
+                  variant="outline-secondary"
+                  type="radio"
+                >
+                  Select {allAlbumsSelected ? "None" : "All"}
+                </ToggleButton>
+                <Row
+                  xs={2}
+                  sm={3}
+                  md={4}
+                  lg={5}
+                  xl={6}
+                  style={{ alignItems: "stretch" }}
+                >
+                  {savedAlbums.map(({ album }) => (
+                    <Col>
+                      <AlbumCard
+                        album={album}
+                        selectAlbum={selectAlbum}
+                        removeAlbum={removeAlbum}
+                        isSelected={!!selectedAlbums[album.id]}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </Form.Group>
+
+        <Button variant="primary" type="submit">
+          Create Playlist
+        </Button>
+      </Form>
+    </>
+  );
 };
 
 export default PlaylistPage;
