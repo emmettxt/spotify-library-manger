@@ -39,7 +39,7 @@ const requestAccessToken = async (code) => {
     body,
     requestConfig
   );
-  return response.data;
+  return processTokenResponse(response.data);
 };
 const refreshToken = async (refresh_token) => {
   const response = await axios.post(
@@ -55,7 +55,19 @@ const refreshToken = async (refresh_token) => {
       },
     }
   );
-  return response.data;
+  return processTokenResponse(response.data);
+};
+/**
+ *
+ * @param {Object} auth
+ * @returns {Object} auth - the inputed auth object with expires_at entry inlcuded
+ */
+const processTokenResponse = (auth) => {
+  const time = new Date();
+  const expires_at = time.setSeconds(time.getSeconds() + auth.expires_in);
+  // const expires_at = time.setSeconds(time.getSeconds());
+
+  return { ...auth, expires_at };
 };
 const spotifyAuth = {
   requestUserAuthorization,

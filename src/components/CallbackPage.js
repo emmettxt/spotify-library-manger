@@ -1,23 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import spotifyAuth from "../utils/spotifyAuth";
-const CallbackPage = ({ setAuth }) => {
+import { useDispatch } from "react-redux";
+import { loginUser } from "../reducers/userActions";
+const CallbackPage = () => {
   const navigate = useNavigate();
   const params = new URLSearchParams(window.location.search);
   const code = params.get("code");
+  const dispatch = useDispatch();
   useEffect(() => {
     if (code) {
-      spotifyAuth
-        .requestAccessToken(code)
-        .then((data) => {
-          setAuth(data);
-          navigate("/");
-          localStorage.setItem("Spotify_loggedIn_user", JSON.stringify(data));
-        })
+      dispatch(loginUser(code))
+        .then(() => navigate("/"))
         .catch(() => navigate("/"));
     } else {
       navigate("/");
     }
-  }, [code, setAuth, navigate]);
+  }, [code, dispatch, navigate]);
 };
 export default CallbackPage;

@@ -1,25 +1,28 @@
 import { useEffect, useState } from "react";
 import { Button, Table } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { refreshToken, updateAuth } from "../reducers/userActions";
 import spotifyService from "../services/spotify";
 import spotifyAuth from "../utils/spotifyAuth";
+import LogoutButton from "./LogoutButton";
 import MasterPlaylistModal from "./MasterPlaylistModal";
 import SavedAlbums from "./SavedAlbums";
 
-const HomePage = ({ auth, setAuth }) => {
+const HomePage = () => {
   const navigate = useNavigate();
-  const [currentUsersProfile, setCurrentUsersProfile] = useState(null);
-  useEffect(() => {
-    auth && spotifyService
-      .getCurrentUsersProfile(auth.access_token)
-      .then((currentUsersProfile) =>
-        setCurrentUsersProfile(currentUsersProfile)
-      );
-  }, [auth, navigate]);
-  const handleRefreshToken = async (event) => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const { auth, profile } = user;
+  const handleRefreshToken = (event) => {
     event.preventDefault();
-    spotifyAuth.refreshToken(auth.refresh_token).then((auth) => setAuth(auth));
+    dispatch(refreshToken());
   };
+  // useEffect(() => {
+  //   if (JSON.stringify(user) === "{}") {
+  //     navigate("/login");
+  //   }
+  // }, [user, navigate]);
   const mapObjectToTable = (object) => {
     if (object && typeof object === "object") {
       return (
@@ -44,10 +47,11 @@ const HomePage = ({ auth, setAuth }) => {
       <Button onClick={handleRefreshToken} variant="primary">
         refresh token
       </Button>
-      <Link to='/playlist'>Create Playlist</Link>
+      <LogoutButton />
+      <Link to="/playlist">Create Playlist</Link>
       <MasterPlaylistModal />
-      {currentUsersProfile ? mapObjectToTable(currentUsersProfile) : null}
-      <SavedAlbums auth={auth} />
+      {profile ? mapObjectToTable(profile) : null}
+      {/* <SavedAlbums auth={auth} /> */}
     </div>
   ) : null;
 };

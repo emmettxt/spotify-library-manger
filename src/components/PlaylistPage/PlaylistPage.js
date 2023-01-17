@@ -5,11 +5,14 @@ import {
   Card,
   Col,
   Form,
+  Modal,
+  ModalHeader,
   Row,
   ToggleButton,
 } from "react-bootstrap";
 import spotifyService from "../../services/spotify";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { useSelector } from "react-redux";
 const AlbumCard = ({ album, isSelected, removeAlbum, selectAlbum }) => {
   const handleClick = (event) => {
     event.preventDefault();
@@ -41,7 +44,9 @@ const AlbumCard = ({ album, isSelected, removeAlbum, selectAlbum }) => {
   );
 };
 
-const PlaylistPage = ({ auth }) => {
+const PlaylistPage = () => {
+  const user = useSelector((state) => state.user);
+  const { auth, profile } = user;
   const [playlistName, setPlaylistName] = useState("");
   const handlePlaylistNameChange = async (event) => {
     setPlaylistName(event.target.value);
@@ -55,13 +60,15 @@ const PlaylistPage = ({ auth }) => {
       return;
     }
   };
-
+  const [loading, setLoading] = useState(true);
   const [savedAlbums, setSavedAlbums] = useState([]);
   useEffect(() => {
     const getAllAlbums = async () => {
+      console.log("get all albums");
+
       let hasNext = true;
-      let offset = 0;
-      for (offset = 0; hasNext; offset += 50) {
+      for (let offset = 0; hasNext; offset += 50) {
+        console.log({ offset });
         const next50 = await spotifyService.getCurrentUsersSavedAlbums(
           auth.access_token,
           50,
@@ -71,7 +78,13 @@ const PlaylistPage = ({ auth }) => {
         setSavedAlbums((savedAlbums) => [...savedAlbums, ...next50.items]);
       }
     };
-    getAllAlbums();
+    console.log("use ffect");
+
+    getAllAlbums().then(() => {
+      console.log("get all albums finished");
+
+      setLoading(false);
+    });
   }, [auth]);
 
   const [selectedAlbums, setSelectedAlbums] = useState({});
@@ -98,13 +111,12 @@ const PlaylistPage = ({ auth }) => {
   };
   const allAlbumsSelected =
     Object.keys(selectedAlbums).length === savedAlbums.length;
-  console.table({
-    "Object.keys(selectedAlbums).length": Object.keys(selectedAlbums).length,
-    "savedAlbums.length": savedAlbums.length,
-  });
-  console.log(allAlbumsSelected);
   return (
     <>
+      <Modal show={loading}>
+        <Modal.Header>Loading your library</Modal.Header>
+        <Modal.Body>{`Albums: ${savedAlbums.length}`}</Modal.Body>
+      </Modal>
       <Form onSubmit={handleSubmit} validated={validated}>
         <Form.Group className="mb-3">
           <Form.Label>Playlist Name</Form.Label>
@@ -140,7 +152,7 @@ const PlaylistPage = ({ auth }) => {
                   style={{ alignItems: "stretch" }}
                 >
                   {savedAlbums.map(({ album }) => (
-                    <Col>
+                    <Col key={album.id}>
                       <AlbumCard
                         album={album}
                         selectAlbum={selectAlbum}
