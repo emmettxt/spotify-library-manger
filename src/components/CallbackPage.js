@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../reducers/userActions";
+import { initializeUser, loginUser } from "../reducers/userActions";
 const CallbackPage = () => {
   const navigate = useNavigate();
   const params = new URLSearchParams(window.location.search);
@@ -10,7 +10,10 @@ const CallbackPage = () => {
   useEffect(() => {
     if (code) {
       dispatch(loginUser(code))
-        .then(() => navigate("/"))
+        .then(() => {
+          dispatch(initializeUser());
+          navigate("/");
+        })
         .catch(() => navigate("/"));
     } else {
       navigate("/");

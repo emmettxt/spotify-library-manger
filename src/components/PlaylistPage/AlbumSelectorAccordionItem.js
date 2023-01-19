@@ -47,22 +47,32 @@ const AlbumSelectorAccordionItem = ({
   useEffect(() => {
     const getAllAlbums = async () => {
       setAlbums([]);
-      setLoading(true);
+      setLoading({
+        isLoading: true,
+        loadingHeader: "Loading your library",
+        loadingMessages: [`Albums: 0`],
+      });
       let hasNext = true;
       for (let offset = 0; hasNext; offset += 50) {
         console.log({ offset });
         const next50 = await spotifyService.getCurrentUsersSavedAlbums(
-          auth.access_token,
           50,
           offset
         );
         hasNext = !!next50.next;
-        setAlbums((albums) => [...albums, ...next50.items]);
+        setAlbums((albums) => {
+          const albumPlusNext = [...albums, ...next50.items];
+          setLoading((loading) => ({
+            ...loading,
+            loadingMessages: [`Albums ${albumPlusNext.length}`],
+          }));
+          return albumPlusNext;
+        });
       }
     };
 
     getAllAlbums().then(() => {
-      setLoading(false);
+      setLoading((loading) => ({ ...loading, isLoading: false }));
     });
   }, [auth, setAlbums, setLoading]);
   const handleSelectAllAlbums = (event) => {

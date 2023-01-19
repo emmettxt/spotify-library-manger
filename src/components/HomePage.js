@@ -5,14 +5,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { refreshToken, updateAuth } from "../reducers/userActions";
 import spotifyService from "../services/spotify";
 import spotifyAuth from "../utils/spotifyAuth";
+import LoadingLibraryModal from "./LoadingLibraryModal";
 import LogoutButton from "./LogoutButton";
 import MasterPlaylistModal from "./MasterPlaylistModal";
 import SavedAlbums from "./SavedAlbums";
 
-const HomePage = () => {
+const HomePage = ({ loadingLibrary }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
+  const library = useSelector((state) => state.library);
   const { auth, profile } = user;
   const handleRefreshToken = (event) => {
     event.preventDefault();
@@ -50,10 +52,21 @@ const HomePage = () => {
       <LogoutButton />
       <Link to="/playlist">Create Playlist</Link>
       <MasterPlaylistModal />
+      <Table>
+        <tr>
+          <td>Albums</td>
+          <td>{library.albums.length}</td>
+        </tr>
+        <tr>
+          <td>Playlists</td>
+          <td>{library.playlists.length}</td>
+        </tr>
+      </Table>
       {profile ? mapObjectToTable(profile) : null}
+      <LoadingLibraryModal show={loadingLibrary} />
       {/* <SavedAlbums auth={auth} /> */}
     </div>
-  ) : null;
+  ) : (null)
 };
 
 export default HomePage;

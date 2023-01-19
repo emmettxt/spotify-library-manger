@@ -1,5 +1,6 @@
 import spotifyService from "../services/spotify";
 import spotifyAuth from "../utils/spotifyAuth";
+import { initializeLibrary } from "./libraryReducer";
 import { clearUser, setAuth, setProfile } from "./userReducer";
 
 /**
@@ -26,26 +27,24 @@ export const updateAuth = (auth) => {
  */
 export const initializeUser = () => {
   return async (dispatch, getState) => {
-    console.log("initializeUser");
-    const storedAuth = JSON.parse(
-      localStorage.getItem("Spotify_loggedIn_user")
-    );
-    console.log({ storedAuth });
+    const storedAuth =
+      getState()?.user?.auth ||
+      JSON.parse(localStorage.getItem("Spotify_loggedIn_user"));
     if (storedAuth) {
       try {
         const refreshedAuth = await spotifyAuth.refreshToken(
           storedAuth?.refresh_token
         );
-        console.log({ refreshedAuth });
         await dispatch(updateAuth(refreshedAuth));
         const currentUsersProfile = await spotifyService.getCurrentUsersProfile(
           refreshedAuth.access_token
         );
-        console.log({ currentUsersProfile });
         await dispatch(setProfile(currentUsersProfile));
+
+        await dispatch(initializeLibrary());
       } catch {
-        localStorage.removeItem("Spotify_loggedIn_user");
-        await dispatch(clearUser());
+        // localStorage.removeItem("Spotify_loggedIn_user");
+        // await dispatch(clearUser());
       }
     }
     return getState().user;
@@ -59,15 +58,11 @@ export const initializeUser = () => {
  * @param {String} code - authorisation code returned in url paramters to spotify call back @link https://developer.spotify.com/documentation/general/guides/authorization/code-flow/
  */
 export const loginUser = (code) => {
-
   return async (dispatch) => {
-    console.log('login user')
+    console.log("login user");
     const auth = await spotifyAuth.requestAccessToken(code);
     await dispatch(updateAuth(auth));
-    const currentUsersProfile = await spotifyService.getCurrentUsersProfile(
-      auth.access_token
-    );
-    await dispatch(setProfile(currentUsersProfile));
+    // await dispatch(initializeUser());
   };
 };
 /**
