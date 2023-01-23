@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import spotifyService from "../services/spotify";
+import spotifyService, { getAllAlbumTracks } from "../services/spotify";
 const initialState = { albums: [], playlists: [], isLoading: false };
 const librarySlice = createSlice({
   name: "library",
@@ -27,18 +27,30 @@ const librarySlice = createSlice({
 });
 export const initializeLibrary = () => {
   return async (dispatch) => {
+    /**
+     * Function that will replace the 'tracks' entry of each object in the input array with an array of all of that albums tracks.
+     * Will only need to do an API call if an album has more than 50 tracks
+     *
+     * @param {Array} albums list of album objects
+     */
+    const includeAllAlbumsTracks = async (albums) => {
+      await albums.map(async ({ album }) => {
+        const tracks = await getAllAlbumTracks(album);
+        return { ...album, tracks };
+      });
+    };
+
     //gets albums and adds them to store
     const getAlbums = async () => {
       console.log("getting albums");
       let hasNext = true;
       for (let offset = 0; hasNext; offset += 50) {
-        console.log({ offset });
-
         const next50 = await spotifyService.getCurrentUsersSavedAlbums(
           50,
           offset
         );
         hasNext = !!next50.next;
+        await includeAllAlbumsTracks(next50.items);
         await dispatch(addAlbums(next50.items));
       }
     };
@@ -61,7 +73,7 @@ export const initializeLibrary = () => {
 
     //this will run both in parallel
     await Promise.all([getAlbums(), getPlaylists()]);
-    
+
     dispatch(setIsLoading(false));
   };
 };

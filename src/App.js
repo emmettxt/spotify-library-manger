@@ -1,4 +1,3 @@
-import { Container } from "react-bootstrap";
 import { Route, Routes } from "react-router-dom";
 import CallbackPage from "./components/CallbackPage";
 import HomePage from "./components/HomePage";
@@ -11,7 +10,7 @@ function App() {
   const isLoading = useSelector((state) => state.library.isLoading);
   return (
     <InitializeUserWrapper>
-      <Container>
+      <div className="container mx-auto">
         <LoadingLibraryModal show={isLoading} />
         <Routes>
           <Route
@@ -26,7 +25,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/redirect" element={<CallbackPage />}></Route>
         </Routes>
-      </Container>
+        {/* <ToggleButtonTest /> */}
+      </div>
     </InitializeUserWrapper>
   );
 }

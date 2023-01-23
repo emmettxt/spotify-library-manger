@@ -1,4 +1,3 @@
-import { Col, Image, Modal, Ratio, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
 const shuffleArray = (array) => {
@@ -18,30 +17,26 @@ const LoadingLibraryModal = ({ show }) => {
     ...playlists,
   ]
     .filter((item) => item?.images?.[0]?.url)
-    .slice(0, 120);
+    // .slice(0, 120);
 
   shuffleArray(allItemsRandomOrder);
-  // .sort((a, b) => 0.5 - Math.random());
-  // const state
   return (
-    <Modal show={show} fullscreen>
-      <Modal.Header>Loading Your Library</Modal.Header>
-      <Modal.Body>
+    <div className={`modal modal${show ? "-open" : ""}`}>
+      <div className="modal-box">
+        <h3 className="font-bold text-lg">Loading Your Library</h3>
         {albums?.length && <p>{`Albums: ${library.albums.length}`}</p>}
         {playlists?.length && <p>{`Albums: ${library.playlists.length}`}</p>}
         <div>
-          <Row className={"gx-0 gy-0"}>
+          <div className="grid grid-cols-12 gap-0">
             {allItemsRandomOrder.map((item) => (
-              <Col xs={1}>
-                <Ratio aspectRatio={"1x1"}>
-                  <Image fluid src={item.images?.[0]?.url} alt={item.name} />
-                </Ratio>
-              </Col>
+              <div key={item.id}>
+                <img src={item.images?.[0]?.url} alt={item.name} />
+              </div>
             ))}
-          </Row>
+          </div>
         </div>
-      </Modal.Body>
-    </Modal>
+      </div>
+    </div>
   );
 };
 

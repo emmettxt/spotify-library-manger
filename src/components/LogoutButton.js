@@ -1,4 +1,3 @@
-import { Button } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../reducers/userActions";
@@ -11,7 +10,7 @@ const LogoutButton = () => {
     await dispatch(logoutUser());
     navigate("/login");
   };
-  return <Button onClick={handleClick}>Logout</Button>;
+  return <button onClick={handleClick}>Logout</button>;
 };
 
 export default LogoutButton;

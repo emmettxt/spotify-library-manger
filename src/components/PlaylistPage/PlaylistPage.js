@@ -1,112 +1,129 @@
-import { useState } from "react";
-import { Accordion, Button, Form, Modal } from "react-bootstrap";
-import spotifyService from "../../services/spotify";
-import AlbumSelectorAccordionItem from "./AlbumSelectorAccordionItem";
-import utils from "./util";
-
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+// import AlbumSelectorAccordionItem from "./AlbumSelectorAccordionItem";
+import AlbumSelector from "./AlbumSelector/AlbumSelector";
 const PlaylistPage = () => {
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const name = event.target.name.value;
-    setLoading({
-      isLoading: true,
-      loadingHeader: `Creating Playlist ${name}`,
-      loadingMessage: null,
-    });
-    const newPlaylist = await spotifyService.createPlaylist(
-      event.target.name.value,
-      undefined,
-      undefined,
-      "Created by Emmet"
-    );
-    // console.log({ newPlaylist });
-    const tracks = await utils.extractTracksFromAlbums(
-      Object.values(selectedAlbums)
-    );
-    setLoading((loading) => ({
-      ...loading,
-      loadingMessages: [`${tracks.length}  selected`],
-    }));
-    let added = 0;
-    const setTracksAddedMessage = (added) => {
-      setLoading((loading) => ({
-        ...loading,
-        loadingMessages: [
-          ...loading.loadingMessages,
-          `${added} tracks added to playlist`,
-        ],
-      }));
-    };
-    const appendLoadingMessage = (message) => {
-      setLoading((loading) => ({
-        ...loading,
-        loadingMessages: [...loading.loadingMessages, message],
-      }));
-    };
+  const handleCreatePlaylist =(event)=>event.preventDefault()
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   const name = event.target.name.value;
+  //   setLoading({
+  //     isLoading: true,
+  //     loadingHeader: `Creating Playlist ${name}`,
+  //     loadingMessage: null,
+  //   });
+  //   const newPlaylist = await spotifyService.createPlaylist(
+  //     event.target.name.value,
+  //     undefined,
+  //     undefined,
+  //     "Created by Emmet"
+  //   );
+  //   // console.log({ newPlaylist });
+  //   const tracks = await utils.extractTracksFromAlbums(
+  //     Object.values(selectedAlbums)
+  //   );
+  //   setLoading((loading) => ({
+  //     ...loading,
+  //     loadingMessages: [`${tracks.length}  selected`],
+  //   }));
+  //   let added = 0;
+  //   const setTracksAddedMessage = (added) => {
+  //     setLoading((loading) => ({
+  //       ...loading,
+  //       loadingMessages: [
+  //         ...loading.loadingMessages,
+  //         `${added} tracks added to playlist`,
+  //       ],
+  //     }));
+  //   };
+  //   const appendLoadingMessage = (message) => {
+  //     setLoading((loading) => ({
+  //       ...loading,
+  //       loadingMessages: [...loading.loadingMessages, message],
+  //     }));
+  //   };
 
-    for (let i = 0; i < tracks.length; i += 100) {
-      try {
-        const uris = tracks
-          .slice(i, i + 100)
-          .map((track) => track.uri)
-          .filter((uri) => uri && uri !== null);
-        await spotifyService.addItemsToPlaylist(
-          newPlaylist.id,
-          undefined,
-          uris
-        );
-        added += uris.length;
-        appendLoadingMessage(`${added} tracks added to playlist`);
-        // setTracksAddedMessage(added);
-      } catch (error) {
-        appendLoadingMessage(
-          `There was an error adding tracks to playlist: ${error?.response?.data?.error?.message}`
-        );
-      }
-    }
-  };
-  const [loading, setLoading] = useState({
-    isLoading: false,
-    loadingHeader: null,
-    loadingMessages: [],
+  //   for (let i = 0; i < tracks.length; i += 100) {
+  //     try {
+  //       const uris = tracks
+  //         .slice(i, i + 100)
+  //         .map((track) => track.uri)
+  //         .filter((uri) => uri && uri !== null);
+  //       await spotifyService.addItemsToPlaylist(
+  //         newPlaylist.id,
+  //         undefined,
+  //         uris
+  //       );
+  //       added += uris.length;
+  //       appendLoadingMessage(`${added} tracks added to playlist`);
+  //       // setTracksAddedMessage(added);
+  //     } catch (error) {
+  //       appendLoadingMessage(
+  //         `There was an error adding tracks to playlist: ${error?.response?.data?.error?.message}`
+  //       );
+  //     }
+  //   }
+  // };
+  const library = useSelector((state) => state.library);
+
+  useEffect(() => {
+    const selectedAlbumsInitialState = library.albums.reduce(
+      (object, { album }) => ({ ...object, [album.id]: false }),
+      {}
+    );
+    setSelectedAlbums(selectedAlbumsInitialState);
+  }, [library.albums]);
+  const [selectedItems, setSelectedItems] = useState({
+    albums: {},
+    playlists: [],
   });
-
-  const [selectedAlbums, setSelectedAlbums] = useState({});
-  const [albums, setAlbums] = useState([]);
+  const setSelectedAlbums = (albums) =>
+    setSelectedItems((selectedItems) => ({ ...selectedItems, albums }));
+  // const setSelectedPlaylists = (playlists) =>
+  //   setSelectedItems((selectedItems) => ({ ...selectedItems, playlists }));
+  const tabNames = ["Albums", "Playlists", "Other"];
+  const [selectedTab, setSelectedTab] = useState(tabNames[0]);
+  const handleChangeTab = (event) => {
+    event.preventDefault();
+    console.log(event.target);
+    setSelectedTab(event.target.value);
+  };
   return (
     <>
-      <Modal show={loading.isLoading}>
-        <Modal.Header>{loading.loadingHeader}</Modal.Header>
-        <Modal.Body>
-          {loading?.loadingMessages?.map((message, index) => (
-            <p key={index}>{message}</p>
-          ))}
-        </Modal.Body>
-      </Modal>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
-          <Form.Label>Playlist Name</Form.Label>
-          <Form.Control name="name" type="text" required />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Include</Form.Label>
-          <Accordion>
-            <AlbumSelectorAccordionItem
-              {...{
-                selectedAlbums,
-                setSelectedAlbums,
-                setLoading,
-                albums,
-                setAlbums,
-              }}
-            />
-          </Accordion>
-        </Form.Group>
-
-        <Button variant="primary" type="submit">
+      <form onSubmit={handleCreatePlaylist}>
+        <div className="form-control m-3">
+          <div className="label">Playlist Name</div>
+          <input className="input input-bordered" type={"text"}></input>
+        </div>
+        <button className="btn m-3" type="submit">
           Create Playlist
-        </Button>
-      </Form>
+        </button>
+        <div className="m-3">
+          <div className="tabs">
+            {tabNames.map((tabName, index) => (
+              <button
+                // className={`tab tab-lifted ${
+                //   selectedTab === "albums" ? "tab-active" : ""
+                // }`}
+                className={`tab tab-lifted data-[selected=true]:tab-active`}
+                onClick={handleChangeTab}
+                value={tabName}
+                data-selected={selectedTab === tabName}
+                key={index}
+              >
+                {tabName}
+              </button>
+            ))}
+          </div>
+          <div className="border-base-200 border-2 p-3">
+            <AlbumSelector
+              selectedAlbums={selectedItems.albums}
+              setSelectedAlbums={setSelectedAlbums}
+              className={selectedTab === "Albums" ? "" : "hidden"}
+            />
+          </div>
+        </div>
+      </form>
     </>
   );
 };

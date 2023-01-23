@@ -1,17 +1,10 @@
-import { useEffect, useState } from "react";
-import { Button, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { refreshToken, updateAuth } from "../reducers/userActions";
-import spotifyService from "../services/spotify";
-import spotifyAuth from "../utils/spotifyAuth";
+import { Link } from "react-router-dom";
+import { refreshToken } from "../reducers/userActions";
 import LoadingLibraryModal from "./LoadingLibraryModal";
 import LogoutButton from "./LogoutButton";
-import MasterPlaylistModal from "./MasterPlaylistModal";
-import SavedAlbums from "./SavedAlbums";
 
 const HomePage = ({ loadingLibrary }) => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const library = useSelector((state) => state.library);
@@ -20,15 +13,10 @@ const HomePage = ({ loadingLibrary }) => {
     event.preventDefault();
     dispatch(refreshToken());
   };
-  // useEffect(() => {
-  //   if (JSON.stringify(user) === "{}") {
-  //     navigate("/login");
-  //   }
-  // }, [user, navigate]);
   const mapObjectToTable = (object) => {
     if (object && typeof object === "object") {
       return (
-        <Table bordered>
+        <table>
           <tbody>
             {Object.entries(object).map(([key, value]) => (
               <tr>
@@ -37,7 +25,7 @@ const HomePage = ({ loadingLibrary }) => {
               </tr>
             ))}
           </tbody>
-        </Table>
+        </table>
       );
     }
     return object ? object.toString() : object;
@@ -46,13 +34,13 @@ const HomePage = ({ loadingLibrary }) => {
     <div>
       <p>refresh_token:{auth.refresh_token}</p>
       <p>access_token:{auth.access_token}</p>
-      <Button onClick={handleRefreshToken} variant="primary">
+
+      <button onClick={handleRefreshToken} variant="primary">
         refresh token
-      </Button>
+      </button>
       <LogoutButton />
       <Link to="/playlist">Create Playlist</Link>
-      <MasterPlaylistModal />
-      <Table>
+      <table>
         <tr>
           <td>Albums</td>
           <td>{library.albums.length}</td>
@@ -61,12 +49,12 @@ const HomePage = ({ loadingLibrary }) => {
           <td>Playlists</td>
           <td>{library.playlists.length}</td>
         </tr>
-      </Table>
+      </table>
       {profile ? mapObjectToTable(profile) : null}
       <LoadingLibraryModal show={loadingLibrary} />
       {/* <SavedAlbums auth={auth} /> */}
     </div>
-  ) : (null)
+  ) : null;
 };
 
 export default HomePage;

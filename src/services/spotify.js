@@ -36,26 +36,6 @@ const getCurrentUsersSavedAlbums = async (limit, offset) => {
   const response = await spotifyAxios.get(`me/albums?${params.toString()}`);
   return response.data;
 };
-const getAllCurrentUsersSavedAlbums = async (access_token) => {
-  const params = new URLSearchParams({ limit: 50, offset: 0 });
-  let url = `${baseURL}/me/albums?${params.toString()}`;
-  const seturl = (string) => (url = string);
-  const albums = [];
-  while (url) {
-    await axios
-      .get(url, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => {
-        albums.push(...response.data.items);
-        seturl(response.data.next);
-      });
-  }
-  return albums;
-};
 const getCurrentUsersPlaylists = async (limit, offset) => {
   const params = new URLSearchParams({ limit, offset });
   const response = await spotifyAxios.get(`me/playlists?${params.toString()}`);
@@ -85,13 +65,55 @@ const addItemsToPlaylist = async (id, position, uris) => {
   const response = await spotifyAxios.post(`playlists/${id}/tracks`, body);
   return response.data;
 };
+
 const spotifyService = {
   getCurrentUsersProfile,
   getCurrentUsersSavedAlbums,
   getCurrentUsersPlaylists,
-  getAllCurrentUsersSavedAlbums,
   createPlaylist,
   getAlbumTracks,
   addItemsToPlaylist,
 };
 export default spotifyService;
+
+//the below functions are not associated with a single spotify api route but will make multiple calls to get desired results
+export const getAllCurrentUsersSavedAlbums = async (access_token) => {
+  const params = new URLSearchParams({ limit: 50, offset: 0 });
+  let url = `${baseURL}/me/albums?${params.toString()}`;
+  const seturl = (string) => (url = string);
+  const albums = [];
+  while (url) {
+    await axios
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        albums.push(...response.data.items);
+        seturl(response.data.next);
+      });
+  }
+  return albums;
+};
+
+export const getAllAlbumTracks = async (album) => {
+  const tracks = [...album.tracks.items];
+  let hasNext = !!album.tracks.next;
+  if (hasNext) {
+    console.log(
+      `getting all tracks for ${album.name} ${
+        hasNext
+          ? "it has more than 50 tracks"
+          : "it does not have more than 50 tracks"
+      }`
+    );
+  }
+  for (let offSet = 50; hasNext; offSet += 50) {
+    const data = await getAlbumTracks(album.id, 50, offSet);
+    hasNext = !!data.next;
+    tracks.push(data.items);
+  }
+  return tracks;
+};
