@@ -19,7 +19,7 @@ const InitializeUserWrapper = ({ children }) => {
         }
       });
     }
-  }, [isCallback]);
+  }, [isCallback, dispatch]); //eslint-disable-line react-hooks/exhaustive-deps
   return <>{children}</>;
 };
 export default InitializeUserWrapper;
