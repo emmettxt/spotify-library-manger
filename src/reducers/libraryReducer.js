@@ -34,24 +34,26 @@ export const initializeLibrary = () => {
      * @param {Array} albums list of album objects
      */
     const includeAllAlbumsTracks = async (albums) => {
-      await albums.map(async ({ album }) => {
-        const tracks = await getAllAlbumTracks(album);
-        return { ...album, tracks };
-      });
+      const albumsWithTracks = [];
+      for (let album of albums) {
+        const tracks = await getAllAlbumTracks(album.album);
+        albumsWithTracks.push({ ...album, album: { ...album.album, tracks } });
+      }
+      return albumsWithTracks;
     };
 
     //gets albums and adds them to store
     const getAlbums = async () => {
       console.log("getting albums");
       let hasNext = true;
-      for (let offset = 0; hasNext && offset < 150; offset += 50) {
+      for (let offset = 0; hasNext; offset += 50) {
         const next50 = await spotifyService.getCurrentUsersSavedAlbums(
           50,
           offset
         );
         hasNext = !!next50.next;
-        await includeAllAlbumsTracks(next50.items);
-        await dispatch(addAlbums(next50.items));
+        const next50WithTracks = await includeAllAlbumsTracks(next50.items);
+        await dispatch(addAlbums(next50WithTracks));
       }
     };
     //gets playlists and adds them to store
