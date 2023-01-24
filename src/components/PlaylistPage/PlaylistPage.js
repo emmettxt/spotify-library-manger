@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 // import AlbumSelectorAccordionItem from "./AlbumSelectorAccordionItem";
 import AlbumSelector from "./AlbumSelector/AlbumSelector";
+import PlaylistSelector from "./PlaylistSelector/PlaylistSelector";
+import SelectedStatus from "./SelectedStatus";
 const PlaylistPage = () => {
-  const handleCreatePlaylist =(event)=>event.preventDefault()
+  const handleCreatePlaylist = (event) => event.preventDefault();
   // const handleSubmit = async (event) => {
   //   event.preventDefault();
   //   const name = event.target.name.value;
@@ -72,15 +74,20 @@ const PlaylistPage = () => {
       {}
     );
     setSelectedAlbums(selectedAlbumsInitialState);
-  }, [library.albums]);
+    const selectedPlaylistsInitialState = library.playlists.reduce(
+      (object, playlist) => ({ ...object, [playlist.id]: false }),
+      {}
+    );
+    setSelectedPlaylists(selectedPlaylistsInitialState);
+  }, [library.albums, library.playlists]);
   const [selectedItems, setSelectedItems] = useState({
     albums: {},
-    playlists: [],
+    playlists: {},
   });
   const setSelectedAlbums = (albums) =>
     setSelectedItems((selectedItems) => ({ ...selectedItems, albums }));
-  // const setSelectedPlaylists = (playlists) =>
-  //   setSelectedItems((selectedItems) => ({ ...selectedItems, playlists }));
+  const setSelectedPlaylists = (playlists) =>
+    setSelectedItems((selectedItems) => ({ ...selectedItems, playlists }));
   const tabNames = ["Albums", "Playlists", "Other"];
   const [selectedTab, setSelectedTab] = useState(tabNames[0]);
   const handleChangeTab = (event) => {
@@ -98,6 +105,7 @@ const PlaylistPage = () => {
         <button className="btn m-3" type="submit">
           Create Playlist
         </button>
+        <SelectedStatus selectedItems={selectedItems} />
         <div className="m-3">
           <div className="tabs">
             {tabNames.map((tabName, index) => (
@@ -120,6 +128,11 @@ const PlaylistPage = () => {
               selectedAlbums={selectedItems.albums}
               setSelectedAlbums={setSelectedAlbums}
               className={selectedTab === "Albums" ? "" : "hidden"}
+            />
+            <PlaylistSelector
+              selectedPlaylists={selectedItems.playlists}
+              setSelectedPlaylists={setSelectedPlaylists}
+              className={selectedTab === "Playlists" ? "" : "hidden"}
             />
           </div>
         </div>
