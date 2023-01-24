@@ -88,8 +88,34 @@ const PlaylistPage = () => {
     setSelectedItems((selectedItems) => ({ ...selectedItems, albums }));
   const setSelectedPlaylists = (playlists) =>
     setSelectedItems((selectedItems) => ({ ...selectedItems, playlists }));
-  const tabNames = ["Albums", "Playlists", "Other"];
-  const [selectedTab, setSelectedTab] = useState(tabNames[0]);
+  const tabs = [
+    {
+      name: "Albums",
+      element: (className) => (
+        <AlbumSelector
+          selectedAlbums={selectedItems.albums}
+          setSelectedAlbums={setSelectedAlbums}
+          className={className}
+          color={"primary"}
+        />
+      ),
+      color: "primary",
+    },
+    {
+      name: "Playlists",
+      element: (className) => (
+        <PlaylistSelector
+          selectedPlaylists={selectedItems.playlists}
+          setSelectedPlaylists={setSelectedPlaylists}
+          className={className}
+          color={"secondary"}
+        />
+      ),
+      color: "secondary",
+    },
+    // { name: "Other", element: () => null, color: "accent" },
+  ];
+  const [selectedTab, setSelectedTab] = useState(tabs[0].name);
   const handleChangeTab = (event) => {
     event.preventDefault();
     console.log(event.target);
@@ -97,46 +123,45 @@ const PlaylistPage = () => {
   };
   return (
     <>
+      <article className="prose">
+        <h1>Create New Playlist</h1>
+      </article>
       <form onSubmit={handleCreatePlaylist}>
         <div className="form-control m-3">
-          <div className="label">Playlist Name</div>
-          <input className="input input-bordered" type={"text"}></input>
+          <input
+            className="input input-bordered"
+            type={"text"}
+            required
+            placeholder="Playlist Name"
+          ></input>
         </div>
-        <button className="btn m-3" type="submit">
-          Create Playlist
-        </button>
-        <SelectedStatus selectedItems={selectedItems} />
-        <div className="m-3">
-          <div className="tabs">
-            {tabNames.map((tabName, index) => (
-              <button
-                // className={`tab tab-lifted ${
-                //   selectedTab === "albums" ? "tab-active" : ""
-                // }`}
-                className={`tab tab-lifted data-[selected=true]:tab-active`}
-                onClick={handleChangeTab}
-                value={tabName}
-                data-selected={selectedTab === tabName}
-                key={index}
-              >
-                {tabName}
-              </button>
-            ))}
-          </div>
-          <div className="border-base-200 border-2 p-3">
-            <AlbumSelector
-              selectedAlbums={selectedItems.albums}
-              setSelectedAlbums={setSelectedAlbums}
-              className={selectedTab === "Albums" ? "" : "hidden"}
-            />
-            <PlaylistSelector
-              selectedPlaylists={selectedItems.playlists}
-              setSelectedPlaylists={setSelectedPlaylists}
-              className={selectedTab === "Playlists" ? "" : "hidden"}
-            />
-          </div>
+        <div className="flex justify-end min-w-full flex-wrap">
+          <button className="btn m-3" type="submit">
+            Create Playlist
+          </button>
+          <SelectedStatus selectedItems={selectedItems} className="" />
         </div>
       </form>
+      <div className="mt-3">
+        <div className="tabs tabs-boxed">
+          {tabs.map(({ name, color }, index) => (
+            <button
+              className={`tab tab-lg tab-border-none data-[selected=true]:tab-active data-[selected=true]:bg-base-300 data-[selected=true]:text-${color}`}
+              onClick={handleChangeTab}
+              value={name}
+              data-selected={selectedTab === name}
+              key={index}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+        <div className="p-3 bg-base-200">
+          {tabs.map(({ element, colorm, name }) =>
+            element(selectedTab === name ? "" : "hidden")
+          )}
+        </div>
+      </div>
     </>
   );
 };

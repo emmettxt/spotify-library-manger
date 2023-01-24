@@ -4,7 +4,12 @@ import CardButton from "../../Common/CardButton";
 import Search from "./Search";
 import SelectAll from "./SelectAll";
 
-const AlbumSelector = ({ selectedAlbums, setSelectedAlbums, className }) => {
+const AlbumSelector = ({
+  selectedAlbums,
+  setSelectedAlbums,
+  className,
+  color,
+}) => {
   const albums = useSelector((state) => state.library)?.albums;
   const handleSelectAllAlbums = () => {
     const newSelectedAlbums = {};
@@ -37,10 +42,11 @@ const AlbumSelector = ({ selectedAlbums, setSelectedAlbums, className }) => {
         {filteredAlbums.map(({ album }) => (
           <CardButton
             key={album.id}
-            cardBody={`${album.name } - ${album.artists[0].name}`}
+            cardBody={`${album.name} - ${album.artists[0].name}`}
             imgURL={album.images[0].url}
             onClick={() => selectAlbum(album)}
             isSelected={selectedAlbums[album.id]}
+            selectedColor={color}
           />
         ))}
       </div>

@@ -5,6 +5,7 @@ const PlaylistSelector = ({
   selectedPlaylists,
   setSelectedPlaylists,
   className,
+  color,
 }) => {
   const playlists = useSelector((state) => state.library?.playlists);
   const toggleSelectPlaylist = (playlist) => {
@@ -21,6 +22,7 @@ const PlaylistSelector = ({
             imgURL={playlist.images[0]?.url}
             onClick={() => toggleSelectPlaylist(playlist)}
             isSelected={selectedPlaylists[playlist.id]}
+            selectedColor={color}
           />
         ))}
       </div>

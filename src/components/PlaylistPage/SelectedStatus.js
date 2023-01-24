@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 
-const SelectedStatus = ({ selectedItems }) => {
+const SelectedStatus = ({ selectedItems, className }) => {
   const selectedAlbums = selectedItems.albums;
   const selectedPlaylists = selectedItems.playlists;
 
@@ -18,22 +18,21 @@ const SelectedStatus = ({ selectedItems }) => {
   const playlistTrackCount = playlists
     .filter((playlist) => selectedPlaylists[playlist.id])
     .reduce((a, b) => a + b.tracks.total, 0);
-  console.log(playlistCount);
   return (
-    <div className="m-3">
-      <div className="stats shadow bg-neutral">
+    <>
+      <div className={`${className} stats shadow bg-neutral`}>
         <div className="stat">
-          <div className="stat-title">Albums</div>
+          <div className="stat-title text-neutral-content">Albums</div>
           <div className="stat-value text-primary">{albumCount}</div>
-          <div className="stat-desc">{`Tracks: ${albumTrackCount}`}</div>
+          <div className="stat-desc text-neutral-content">{`Tracks: ${albumTrackCount}`}</div>
         </div>
         <div className="stat">
-          <div className="stat-title">Playlists</div>
+          <div className="stat-title text-neutral-content">Playlists</div>
           <div className="stat-value text-secondary">{playlistCount}</div>
-          <div className="stat-desc">{`Tracks: ${playlistTrackCount}`}</div>
+          <div className="stat-desc text-neutral-content">{`Tracks: ${playlistTrackCount}`}</div>
         </div>
         <div className="stat">
-          <div className="stat-title">Total Tracks</div>
+          <div className="stat-title text-neutral-content">Total Tracks</div>
           <div className="stat-value text-accent">
             {playlistTrackCount + albumTrackCount}
           </div>
@@ -47,7 +46,7 @@ const SelectedStatus = ({ selectedItems }) => {
           </span>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
