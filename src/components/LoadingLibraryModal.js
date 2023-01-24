@@ -25,7 +25,7 @@ const LoadingLibraryModal = ({ show }) => {
       <div className="modal-box">
         <h3 className="font-bold text-lg">Loading Your Library</h3>
         {albums?.length && <p>{`Albums: ${library.albums.length}`}</p>}
-        {playlists?.length && <p>{`Albums: ${library.playlists.length}`}</p>}
+        {playlists?.length && <p>{`Playlists: ${library.playlists.length}`}</p>}
         <div>
           <div className="grid grid-cols-12 gap-0">
             {allItemsRandomOrder.map((item) => (
