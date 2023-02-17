@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 // import AlbumSelectorAccordionItem from "./AlbumSelectorAccordionItem";
 import AlbumSelector from "./AlbumSelector/AlbumSelector";
 import PlaylistSelector from "./PlaylistSelector/PlaylistSelector";
 import SelectedStatus from "./SelectedStatus";
 const PlaylistPage = () => {
-  const handleCreatePlaylist = (event) => event.preventDefault();
+  const navigate = useNavigate();
+  const handleCreatePlaylist = (event) => {
+    event.preventDefault();
+    const name = event.target.name.value;
+    navigate("/creatingplaylist", { state: { name, selectedItems } });
+  };
+
   // const handleSubmit = async (event) => {
   //   event.preventDefault();
   //   const name = event.target.name.value;
@@ -133,6 +140,7 @@ const PlaylistPage = () => {
             type={"text"}
             required
             placeholder="Playlist Name"
+            name="name"
           ></input>
         </div>
         <div className="flex justify-end min-w-full flex-wrap">

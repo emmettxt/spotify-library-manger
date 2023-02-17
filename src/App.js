@@ -6,6 +6,7 @@ import PlaylistPage from "./components/PlaylistPage/PlaylistPage.js";
 import InitializeUserWrapper from "./components/InitialiseUserWrapper";
 import LoadingLibraryModal from "./components/LoadingLibraryModal";
 import { useSelector } from "react-redux";
+import CreatingPlaylistPage from "./components/CreatingPlaylistPage/CreatingPlaylistPage";
 function App() {
   const isLoading = useSelector((state) => state.library.isLoading);
   return (
@@ -22,6 +23,8 @@ function App() {
             }
           />
           <Route path="/playlist" element={<PlaylistPage />} />
+          <Route path="/creatingplaylist" element={<CreatingPlaylistPage />} />
+
           <Route path="/login" element={<Login />} />
           <Route path="/redirect" element={<CallbackPage />}></Route>
         </Routes>

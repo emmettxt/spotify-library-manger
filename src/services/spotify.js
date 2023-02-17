@@ -66,6 +66,14 @@ const addItemsToPlaylist = async (id, position, uris) => {
   return response.data;
 };
 
+const getPlaylistItems = async (id, fields, limit, offset) => {
+  const params = new URLSearchParams({ fields, limit, offset });
+  const response = await spotifyAxios.get(
+    `playlists/${id}/tracks?${params.toString()}`
+  );
+  return response.data;
+};
+
 const spotifyService = {
   getCurrentUsersProfile,
   getCurrentUsersSavedAlbums,
@@ -73,6 +81,7 @@ const spotifyService = {
   createPlaylist,
   getAlbumTracks,
   addItemsToPlaylist,
+  getPlaylistItems,
 };
 export default spotifyService;
 
@@ -116,4 +125,15 @@ export const getAllAlbumTracks = async (album) => {
     tracks.push(data.items);
   }
   return tracks;
+};
+
+export const getAllPlaylistItems = async (id, fields) => {
+  const items = [];
+  let hasNext = true;
+  for (let offSet = 0; hasNext; offSet += 50) {
+    const data = await getPlaylistItems(id, fields, 50, offSet);
+    hasNext = !!data.next;
+    items.push(...data.items);
+  }
+  return items;
 };

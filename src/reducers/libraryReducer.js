@@ -46,7 +46,7 @@ export const initializeLibrary = () => {
     const getAlbums = async () => {
       console.log("getting albums");
       let hasNext = true;
-      for (let offset = 0; hasNext; offset += 50) {
+      for (let offset = 0; hasNext && offset<150; offset += 50) {
         const next50 = await spotifyService.getCurrentUsersSavedAlbums(
           50,
           offset
