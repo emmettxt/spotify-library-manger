@@ -1,5 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
+import localforage from "localforage";
 import spotifyService, { getAllAlbumTracks } from "../services/spotify";
+import store from "../store";
 const initialState = { albums: [], playlists: [], isLoading: false };
 const librarySlice = createSlice({
   name: "library",
@@ -19,6 +21,9 @@ const librarySlice = createSlice({
     },
     clearLibrary() {
       return initialState;
+    },
+    setLibrary(state, action) {
+      return action.payload;
     },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
@@ -46,7 +51,7 @@ export const initializeLibrary = () => {
     const getAlbums = async () => {
       console.log("getting albums");
       let hasNext = true;
-      for (let offset = 0; hasNext && offset<150; offset += 50) {
+      for (let offset = 0; hasNext && offset < 150; offset += 50) {
         const next50 = await spotifyService.getCurrentUsersSavedAlbums(
           50,
           offset
@@ -73,8 +78,17 @@ export const initializeLibrary = () => {
     };
     dispatch(setIsLoading(true));
 
-    //this will run both in parallel
-    await Promise.all([getAlbums(), getPlaylists()]);
+    //check if library is saved localy
+    const localforageLibrary = await localforage.getItem("spotify-library");
+    if (localforageLibrary) {
+      console.log(localforageLibrary)
+      dispatch(setLibrary(localforageLibrary)); 
+    } else {
+      //this will run both in parallel
+      await Promise.all([getAlbums(), getPlaylists()]);
+
+      await localforage.setItem("spotify-library", store.getState().library);
+    }
 
     dispatch(setIsLoading(false));
   };
@@ -86,6 +100,7 @@ export const {
   setPlaylists,
   addPlaylists,
   clearLibrary,
+  setLibrary,
   setIsLoading,
 } = librarySlice.actions;
 
