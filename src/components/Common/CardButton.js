@@ -15,14 +15,14 @@ const CardButton = ({
   return (
     <button
       className={`${className} card card-compact h-full btn btn-block p-0 ${
-        isSelected ? `btn btn-${selectedColor}` : ""
+        isSelected ? `btn btn-primary btn-${selectedColor}` : ""
       }`}
       onClick={handleClick}
     >
       <figure>
         <LazyLoadImage src={imgURL} loading="lazy" />
       </figure>
-      <div className="card-body card normal-case">{cardBody}</div>
+      <div className="card-body card normal-case break-words max-w-full ">{cardBody}</div>
     </button>
   );
 };
