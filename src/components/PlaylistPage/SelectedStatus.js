@@ -20,6 +20,14 @@ const SelectedStatus = ({ selectedItems, className }) => {
     .reduce((a, b) => a + b.tracks.total, 0);
   return (
     <>
+      {playlistTrackCount + albumTrackCount > 10000 && (
+        <div className="alert alert-warning mb-3">
+          <span>
+            Spotify has a track limit of 10K per playlist. This will be split
+            over mulitple playlists
+          </span>
+        </div>
+      )}
       <div className={`${className} stats shadow bg-neutral`}>
         <div className="stat">
           <div className="stat-title text-neutral-content">Albums</div>
@@ -38,14 +46,6 @@ const SelectedStatus = ({ selectedItems, className }) => {
           </div>
         </div>
       </div>
-      {playlistTrackCount + albumTrackCount > 10000 && (
-        <div className="alert alert-warning mt-3">
-          <span>
-            Spotify has a track limit of 10K per playlist. This will be split
-            over mulitple playlists
-          </span>
-        </div>
-      )}
     </>
   );
 };

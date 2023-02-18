@@ -143,11 +143,11 @@ const PlaylistPage = () => {
             name="name"
           ></input>
         </div>
-        <div className="flex justify-end min-w-full flex-wrap">
-          <button className="btn m-3" type="submit">
+        <div className="flex justify-between min-w-full flex-wrap">
+          <SelectedStatus selectedItems={selectedItems} className="" />
+          <button className="btn m-3 btn-primary" type="submit">
             Create Playlist
           </button>
-          <SelectedStatus selectedItems={selectedItems} className="" />
         </div>
       </form>
       <div className="mt-3">
