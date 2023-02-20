@@ -21,6 +21,21 @@ spotifyAxios.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+
+spotifyAxios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const {
+      config,
+      response: { status },
+    } = error;
+    if (status !== 429 && status < 500) return Promise.reject(error);
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(spotifyAxios(config)), 1000)
+    );
+  }
+);
+
 const getCurrentUsersProfile = async (access_token) => {
   const response = await spotifyAxios.get(`me`, {
     headers: {
@@ -136,4 +151,36 @@ export const getAllPlaylistItems = async (id, fields) => {
     items.push(...data.items);
   }
   return items;
+};
+
+export const getAllPlaylistItemsAsync = async (playlist, fields = "") => {
+  const {
+    tracks: { total },
+    id,
+  } = playlist;
+  const items = [];
+  const promises = [];
+  for (let offSet = 0; offSet < total; offSet += 50) {
+    const promise = getPlaylistItems(id, fields, 50, offSet).then((data) =>
+      items.push(...data.items)
+    );
+    promises.push(promise);
+  }
+  await Promise.all(promises);
+  return items;
+};
+
+export const addTracksToPlaylist = async (tracks, id) => {
+  console.log("addTracksToPlaylist", { tracks, id });
+  const uris = tracks.map(({ uri }) => uri).filter((uri) => !!uri);
+  const promises = [];
+  for (let offset = 0; offset < uris.length; offset += 100) {
+    const promise = addItemsToPlaylist(
+      id,
+      undefined,
+      uris.slice(offset, offset + 100)
+    );
+    promises.push(promise);
+  }
+  await Promise.all(promises);
 };

@@ -17,7 +17,7 @@ const LoadingLibraryModal = ({ show }) => {
     ...playlists,
   ]
     .filter((item) => item?.images?.[0]?.url)
-    // .slice(0, 120);
+    .slice(0, 120);
 
   shuffleArray(allItemsRandomOrder);
   return (
