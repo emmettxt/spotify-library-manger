@@ -12,67 +12,6 @@ const PlaylistPage = () => {
     const name = event.target.name.value;
     navigate("/creatingplaylist", { state: { name, selectedItems } });
   };
-
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //   const name = event.target.name.value;
-  //   setLoading({
-  //     isLoading: true,
-  //     loadingHeader: `Creating Playlist ${name}`,
-  //     loadingMessage: null,
-  //   });
-  //   const newPlaylist = await spotifyService.createPlaylist(
-  //     event.target.name.value,
-  //     undefined,
-  //     undefined,
-  //     "Created by Emmet"
-  //   );
-  //   // console.log({ newPlaylist });
-  //   const tracks = await utils.extractTracksFromAlbums(
-  //     Object.values(selectedAlbums)
-  //   );
-  //   setLoading((loading) => ({
-  //     ...loading,
-  //     loadingMessages: [`${tracks.length}  selected`],
-  //   }));
-  //   let added = 0;
-  //   const setTracksAddedMessage = (added) => {
-  //     setLoading((loading) => ({
-  //       ...loading,
-  //       loadingMessages: [
-  //         ...loading.loadingMessages,
-  //         `${added} tracks added to playlist`,
-  //       ],
-  //     }));
-  //   };
-  //   const appendLoadingMessage = (message) => {
-  //     setLoading((loading) => ({
-  //       ...loading,
-  //       loadingMessages: [...loading.loadingMessages, message],
-  //     }));
-  //   };
-
-  //   for (let i = 0; i < tracks.length; i += 100) {
-  //     try {
-  //       const uris = tracks
-  //         .slice(i, i + 100)
-  //         .map((track) => track.uri)
-  //         .filter((uri) => uri && uri !== null);
-  //       await spotifyService.addItemsToPlaylist(
-  //         newPlaylist.id,
-  //         undefined,
-  //         uris
-  //       );
-  //       added += uris.length;
-  //       appendLoadingMessage(`${added} tracks added to playlist`);
-  //       // setTracksAddedMessage(added);
-  //     } catch (error) {
-  //       appendLoadingMessage(
-  //         `There was an error adding tracks to playlist: ${error?.response?.data?.error?.message}`
-  //       );
-  //     }
-  //   }
-  // };
   const library = useSelector((state) => state.library);
 
   useEffect(() => {
