@@ -9,6 +9,7 @@ const PlaylistPage = () => {
   const navigate = useNavigate();
   const handleCreatePlaylist = async (event) => {
     event.preventDefault();
+    setLoadingCreatePlaylist(true);
     const name = event.target.name.value;
 
     const selectedTracks = [];
@@ -33,10 +34,12 @@ const PlaylistPage = () => {
     );
     selectedTracks.push(...albumsTracks);
 
+    setLoadingCreatePlaylist(false);
     navigate("/creatingplaylist", {
       state: { name, selectedItems, selectedTracks },
     });
   };
+  const [loadingCreatePlaylist, setLoadingCreatePlaylist] = useState(false);
   const library = useSelector((state) => state.library);
 
   useEffect(() => {
@@ -109,7 +112,12 @@ const PlaylistPage = () => {
         </div>
         <div className="flex justify-between min-w-full flex-wrap">
           <SelectedStatus selectedItems={selectedItems} className="" />
-          <button className="btn m-3 btn-primary" type="submit">
+          <button
+            className={`btn m-3 btn-primary ${
+              loadingCreatePlaylist ? "btn-disabled loading" : ""
+            }`}
+            type="submit"
+          >
             Create Playlist
           </button>
         </div>
