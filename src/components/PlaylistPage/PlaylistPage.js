@@ -1,16 +1,41 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-// import AlbumSelectorAccordionItem from "./AlbumSelectorAccordionItem";
+import { getAllPlaylistItemsAsync } from "../../services/spotify";
 import AlbumSelector from "./AlbumSelector/AlbumSelector";
 import PlaylistSelector from "./PlaylistSelector/PlaylistSelector";
 import SelectedStatus from "./SelectedStatus";
 const PlaylistPage = () => {
   const navigate = useNavigate();
-  const handleCreatePlaylist = (event) => {
+  const handleCreatePlaylist = async (event) => {
     event.preventDefault();
     const name = event.target.name.value;
-    navigate("/creatingplaylist", { state: { name, selectedItems } });
+
+    const selectedTracks = [];
+    //get tracks from selected playlist and add to selectedTracks array
+    const selectedPlaylists = library.playlists.filter(
+      (playlist) => selectedItems.playlists?.[playlist.id]
+    );
+    for (let playlist of selectedPlaylists) {
+      const playlistItems = await getAllPlaylistItemsAsync(playlist, "");
+      selectedTracks.push(...playlistItems.map(({ track }) => track));
+    }
+    //get tracks from selected playlist and add to selectedTracks array
+    const selectedAlbums = library.albums.filter(
+      ({ album }) => selectedItems.albums[album.id]
+    );
+    const albumsTracks = selectedAlbums.reduce(
+      (tracks, { album }) => [
+        ...tracks,
+        ...album.tracks.map((track) => ({ ...track, album })),
+      ],
+      []
+    );
+    selectedTracks.push(...albumsTracks);
+
+    navigate("/creatingplaylist", {
+      state: { name, selectedItems, selectedTracks },
+    });
   };
   const library = useSelector((state) => state.library);
 

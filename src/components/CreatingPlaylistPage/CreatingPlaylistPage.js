@@ -1,25 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import spotifyService, {
-  addTracksToPlaylist,
-  getAllPlaylistItems,
-  getAllPlaylistItemsAsync,
-} from "../../services/spotify";
+import spotifyService, { addTracksToPlaylist } from "../../services/spotify";
 import { shuffleArray } from "../../utils/utils";
 
 const CreatingPlaylistPage = () => {
   const {
-    state: { name, selectedItems },
+    state: { name, selectedItems, selectedTracks },
   } = useLocation();
-  const { albums, playlists } = useSelector((state) => state.library);
+  console.log({ selectedTracks });
+  const { albums } = useSelector((state) => state.library);
   const selectedAlbums = albums.filter(
     ({ album }) => selectedItems.albums[album.id]
-  );
-
-  const selectedPlaylists = playlists.filter(
-    (playlist) => selectedItems.playlists?.[playlist.id]
   );
   const albumsTracks = selectedAlbums.reduce(
     (tracks, { album }) => [
@@ -28,21 +21,8 @@ const CreatingPlaylistPage = () => {
     ],
     []
   );
-  const [playlistsTracks, setPlaylistsTracks] = useState(albumsTracks);
-
+  const shuffeledTracks = shuffleArray(selectedTracks)
   useEffect(() => {
-    selectedPlaylists.forEach(async (playlist) => {
-      // const playlistItems = await getAllPlaylistItems(playlist.id, "");
-      const playlistItems = await getAllPlaylistItemsAsync(playlist, "");
-      setPlaylistsTracks((playlistTracks) => [
-        ...playlistTracks,
-        ...playlistItems.map(({ track }) => track),
-      ]);
-    });
-
-    const shuffeledTracks = [...playlistsTracks];
-    shuffleArray(shuffeledTracks);
-    setPlaylistsTracks(shuffeledTracks);
     for (let offset = 0; offset < shuffeledTracks.length; offset += 10000) {
       const partName =
         shuffeledTracks.length <= 10000
@@ -57,7 +37,7 @@ const CreatingPlaylistPage = () => {
           )
         );
     }
-  }, []);
+  }, [shuffeledTracks, name]);
 
   return (
     <div className="min-w-full">
@@ -74,12 +54,12 @@ const CreatingPlaylistPage = () => {
         <div className="stat">
           <div className="stat-title">Tracks in selected playlists</div>
           <div className="stat-value">
-            {playlistsTracks.length - albumsTracks.length}
+            {shuffeledTracks.length - albumsTracks.length}
           </div>
         </div>
       </div>
 
-      {playlistsTracks.map((track, index) => (
+      {shuffeledTracks.map((track, index) => (
         <div className="grid grid-cols-12 bg-neutral border-neutral-focus border-2 hover:bg-neutral-focus rounded-md hover:scale-y-95 ">
           <>
             <span className="col-span-1 m-auto">{index + 1}</span>
