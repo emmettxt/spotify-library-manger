@@ -30,7 +30,7 @@ const LoadingLibraryModal = ({ show }) => {
           <div className="grid grid-cols-12 gap-0">
             {allItemsRandomOrder.map((item) => (
               <div key={item.id}>
-                <img src={item.images?.[0]?.url} alt={item.name} />
+                <img src={item.images?.slice(-1)?.[0]?.url} alt={item.name} />
               </div>
             ))}
           </div>
