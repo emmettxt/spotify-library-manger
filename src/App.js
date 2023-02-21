@@ -7,28 +7,21 @@ import InitializeUserWrapper from "./components/InitialiseUserWrapper";
 import LoadingLibraryModal from "./components/LoadingLibraryModal";
 import { useSelector } from "react-redux";
 import CreatingPlaylistPage from "./components/CreatingPlaylistPage/CreatingPlaylistPage";
+import Navbar from "./components/Navbar/Navbar";
 function App() {
   const isLoading = useSelector((state) => state.library.isLoading);
   return (
     <InitializeUserWrapper>
+      <Navbar />
       <div className="container mx-auto">
         <LoadingLibraryModal show={isLoading} />
         <Routes>
-          <Route
-            path="/"
-            element={
-              // <InitializeUserWrapper>
-              <HomePage />
-              // {/* </InitializeUserWrapper> */}
-            }
-          />
+          <Route path="/" element={<HomePage />} />
           <Route path="/playlist" element={<PlaylistPage />} />
           <Route path="/creatingplaylist" element={<CreatingPlaylistPage />} />
-
           <Route path="/login" element={<Login />} />
           <Route path="/redirect" element={<CallbackPage />}></Route>
         </Routes>
-        {/* <ToggleButtonTest /> */}
       </div>
     </InitializeUserWrapper>
   );
