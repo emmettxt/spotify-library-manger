@@ -89,6 +89,11 @@ const getPlaylistItems = async (id, fields, limit, offset) => {
   return response.data;
 };
 
+const unfollowPlaylist  = async(id)=>{
+  const response = await spotifyAxios.delete(`/playlists/${id}/followers`)
+  return response.data
+}
+
 const spotifyService = {
   getCurrentUsersProfile,
   getCurrentUsersSavedAlbums,
@@ -97,6 +102,7 @@ const spotifyService = {
   getAlbumTracks,
   addItemsToPlaylist,
   getPlaylistItems,
+  unfollowPlaylist
 };
 export default spotifyService;
 

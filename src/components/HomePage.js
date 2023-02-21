@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { refreshToken } from "../reducers/userActions";
+import DeleteTestPlaylistsButton from "./DeleteTestPlaylistsButton";
 import LoadingLibraryModal from "./LoadingLibraryModal";
 import LogoutButton from "./LogoutButton";
 
@@ -40,6 +41,7 @@ const HomePage = ({ loadingLibrary }) => {
       </button>
       <LogoutButton />
       <Link to="/playlist">Create Playlist</Link>
+      <DeleteTestPlaylistsButton/>
       <table>
         <tr>
           <td>Albums</td>
