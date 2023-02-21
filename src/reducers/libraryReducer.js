@@ -2,7 +2,13 @@ import { createSlice } from "@reduxjs/toolkit";
 import localforage from "localforage";
 import spotifyService, { getAllAlbumTracks } from "../services/spotify";
 import store from "../store";
-const initialState = { albums: [], playlists: [], isLoading: false };
+const initalAlbumState = [];
+const intialPlaylistState = [];
+const initialState = {
+  albums: initalAlbumState,
+  playlists: intialPlaylistState,
+  isLoading: false,
+};
 const librarySlice = createSlice({
   name: "library",
   initialState,
@@ -13,11 +19,17 @@ const librarySlice = createSlice({
     addAlbums(state, action) {
       state.albums.push(...action.payload);
     },
+    clearAlbums(state) {
+      state.albums = initalAlbumState;
+    },
     setPlaylists(state, action) {
       state.playlists = action.payload;
     },
     addPlaylists(state, action) {
       state.playlists.push(...action.payload);
+    },
+    clearPlaylists(state) {
+      state.playlists = intialPlaylistState;
     },
     clearLibrary() {
       return initialState;
@@ -40,12 +52,31 @@ export const emptyLibrary = () => {
 
 export const refreshLibrary = () => {
   return async (dispatch) => {
-    await dispatch(emptyLibrary());
-    await dispatch(initializeLibrary());
+    await dispatch(setIsLoading(true));
+    await Promise.all([
+      dispatch(syncAlbumLibrary()),
+      dispatch(syncPlaylistLibrary()),
+    ]);
+    await dispatch(setIsLoading(false));
   };
 };
 
-export const initializeLibrary = () => {
+export const refreshPlaylists = () => {
+  return async (dispatch) => {
+    await dispatch(setIsLoading(true));
+    await dispatch(syncPlaylistLibrary());
+    await dispatch(setIsLoading(false));
+  };
+};
+export const refreshAlbums = () => {
+  return async (dispatch) => {
+    await dispatch(setIsLoading(true));
+    await dispatch(syncAlbumLibrary());
+    await dispatch(setIsLoading(false));
+  };
+};
+
+export const syncAlbumLibrary = () => {
   return async (dispatch) => {
     /**
      * Function that will replace the 'tracks' entry of each object in the input array with an array of all of that albums tracks.
@@ -62,35 +93,36 @@ export const initializeLibrary = () => {
       return albumsWithTracks;
     };
 
-    //gets albums and adds them to store
-    const getAlbums = async () => {
-      console.log("getting albums");
-      let hasNext = true;
-      for (let offset = 0; hasNext; offset += 50) {
-        const next50 = await spotifyService.getCurrentUsersSavedAlbums(
-          50,
-          offset
-        );
-        hasNext = !!next50.next;
-        const next50WithTracks = await includeAllAlbumsTracks(next50.items);
-        await dispatch(addAlbums(next50WithTracks));
-      }
-    };
-    //gets playlists and adds them to store
-    const getPlaylists = async () => {
-      console.log("getting playlists");
+    await dispatch(clearAlbums());
 
-      let hasNext = true;
-      for (let offset = 0; hasNext; offset += 50) {
-        console.log({ offset });
-        const next50 = await spotifyService.getCurrentUsersPlaylists(
-          50,
-          offset
-        );
-        hasNext = !!next50.next;
-        await dispatch(addPlaylists(next50.items));
-      }
-    };
+    let hasNext = true;
+    for (let offset = 0; hasNext; offset += 50) {
+      const next50 = await spotifyService.getCurrentUsersSavedAlbums(
+        50,
+        offset
+      );
+      hasNext = !!next50.next;
+      const next50WithTracks = await includeAllAlbumsTracks(next50.items);
+      await dispatch(addAlbums(next50WithTracks));
+    }
+  };
+};
+
+export const syncPlaylistLibrary = () => {
+  return async (dispatch) => {
+    await dispatch(clearPlaylists());
+    let hasNext = true;
+    for (let offset = 0; hasNext; offset += 50) {
+      console.log({ offset });
+      const next50 = await spotifyService.getCurrentUsersPlaylists(50, offset);
+      hasNext = !!next50.next;
+      await dispatch(addPlaylists(next50.items));
+    }
+  };
+};
+
+export const initializeLibrary = () => {
+  return async (dispatch) => {
     dispatch(setIsLoading(true));
 
     //check if library is saved localy
@@ -100,7 +132,10 @@ export const initializeLibrary = () => {
       dispatch(setLibrary(localforageLibrary));
     } else {
       //this will run both in parallel
-      await Promise.all([getAlbums(), getPlaylists()]);
+      await Promise.all([
+        dispatch(syncAlbumLibrary()),
+        dispatch(syncAlbumLibrary),
+      ]);
 
       await localforage.setItem("spotify-library", store.getState().library);
     }
@@ -112,8 +147,10 @@ export const initializeLibrary = () => {
 export const {
   setAlbums,
   addAlbums,
+  clearAlbums,
   setPlaylists,
   addPlaylists,
+  clearPlaylists,
   clearLibrary,
   setLibrary,
   setIsLoading,
