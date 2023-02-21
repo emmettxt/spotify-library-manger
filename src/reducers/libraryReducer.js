@@ -30,6 +30,21 @@ const librarySlice = createSlice({
     },
   },
 });
+
+export const emptyLibrary = () => {
+  return async (dispatch) => {
+    await localforage.removeItem("spotify-library");
+    await dispatch(clearLibrary());
+  };
+};
+
+export const refreshLibrary = () => {
+  return async (dispatch) => {
+    await dispatch(emptyLibrary());
+    await dispatch(initializeLibrary());
+  };
+};
+
 export const initializeLibrary = () => {
   return async (dispatch) => {
     /**
@@ -81,8 +96,8 @@ export const initializeLibrary = () => {
     //check if library is saved localy
     const localforageLibrary = await localforage.getItem("spotify-library");
     if (localforageLibrary) {
-      console.log(localforageLibrary)
-      dispatch(setLibrary(localforageLibrary)); 
+      console.log(localforageLibrary);
+      dispatch(setLibrary(localforageLibrary));
     } else {
       //this will run both in parallel
       await Promise.all([getAlbums(), getPlaylists()]);
