@@ -1,12 +1,16 @@
-import { useSelector } from "react-redux";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { refreshPlaylists } from "../reducers/libraryReducer";
 import spotifyService from "../services/spotify";
 
 const DeleteTestPlaylistsButton = () => {
   const { playlists } = useSelector((state) => state.library);
   const testPlaylists = playlists.filter((p) => p.name === "test");
-  const handleClick = (event) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const handleClick = async (event) => {
     event.preventDefault();
-
+    setIsLoading(true);
     if (
       window.confirm(
         "are you sure you want to delete " +
@@ -16,14 +20,21 @@ const DeleteTestPlaylistsButton = () => {
           "playlists?"
       )
     ) {
+      const promises = [];
       testPlaylists.forEach((playlist) => {
-        spotifyService.unfollowPlaylist(playlist.id);
+        promises.push(spotifyService.unfollowPlaylist(playlist.id));
       });
+      await Promise.all(promises);
     }
+    await dispatch(refreshPlaylists())
+    setIsLoading(false);
   };
 
   return (
-    <button onClick={handleClick} className='btn btn-warning'>
+    <button
+      onClick={handleClick}
+      className={`btn btn-warning ${isLoading ? "btn-disabled loading" : ""}`}
+    >
       Delete Test Playlists {testPlaylists.length}
     </button>
   );
