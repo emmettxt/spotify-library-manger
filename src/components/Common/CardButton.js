@@ -27,7 +27,6 @@ const CardButton = ({
             src={imgURL}
             loading="lazy"
             placeholder={<PlaceHolder />}
-            onError={<PlaceHolder />}
             className=""
           />
         </RecordBackground>
