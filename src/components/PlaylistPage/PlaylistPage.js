@@ -123,10 +123,10 @@ const PlaylistPage = () => {
         </div>
       </form>
       <div className="mt-3">
-        <div className="tabs tabs-boxed">
+        <div className="tabs w-full flex justify-center">
           {tabs.map(({ name, color }, index) => (
             <button
-              className={`tab tab-lg tab-border-none data-[selected=true]:tab-active data-[selected=true]:bg-base-300 data-[selected=true]:text-${color}`}
+              className={`tab tab-lg tab-bordered data-[selected=true]:tab-active`}
               onClick={handleChangeTab}
               value={name}
               data-selected={selectedTab === name}
@@ -136,7 +136,7 @@ const PlaylistPage = () => {
             </button>
           ))}
         </div>
-        <div className="p-3 bg-base-200">
+        <div className="p-3 bg-neutral">
           {tabs.map(({ element, colorm, name }) =>
             element(selectedTab === name ? "" : "hidden")
           )}
