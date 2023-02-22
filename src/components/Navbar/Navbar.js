@@ -12,7 +12,7 @@ const Navbar = () => {
 
   return (
     <div className="navbar bg-neutral">
-      <div class="flex-1 gap-1">
+      <div className="flex-1 gap-1">
         <NavLink
           to={"/"}
           className={(isActive) => (isActive ? "btn btn-primary " : "btn")}
