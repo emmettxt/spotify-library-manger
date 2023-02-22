@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/spotify-library-manger%20/static/css/main.b0778941.css",
+    "main.js": "/spotify-library-manger%20/static/js/main.d02895e8.js",
+    "index.html": "/spotify-library-manger%20/index.html",
+    "static/media/user-regular.svg": "/spotify-library-manger%20/static/media/user-regular.cfd3b03d1965872907465a372127a5f5.svg",
+    "static/media/record-vinyl-solid.svg": "/spotify-library-manger%20/static/media/record-vinyl-solid.ce31de970dbaba49bf303d1baf3dbb47.svg",
+    "main.b0778941.css.map": "/spotify-library-manger%20/static/css/main.b0778941.css.map",
+    "main.d02895e8.js.map": "/spotify-library-manger%20/static/js/main.d02895e8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b0778941.css",
+    "static/js/main.d02895e8.js"
+  ]
+}
