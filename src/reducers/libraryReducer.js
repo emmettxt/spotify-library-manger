@@ -57,6 +57,8 @@ export const refreshLibrary = () => {
       dispatch(syncAlbumLibrary()),
       dispatch(syncPlaylistLibrary()),
     ]);
+    await syncLocalforage();
+
     await dispatch(setIsLoading(false));
   };
 };
@@ -65,6 +67,7 @@ export const refreshPlaylists = () => {
   return async (dispatch) => {
     await dispatch(setIsLoading(true));
     await dispatch(syncPlaylistLibrary());
+    await syncLocalforage();
     await dispatch(setIsLoading(false));
   };
 };
@@ -72,6 +75,7 @@ export const refreshAlbums = () => {
   return async (dispatch) => {
     await dispatch(setIsLoading(true));
     await dispatch(syncAlbumLibrary());
+    await syncLocalforage();
     await dispatch(setIsLoading(false));
   };
 };
@@ -134,14 +138,18 @@ export const initializeLibrary = () => {
       //this will run both in parallel
       await Promise.all([
         dispatch(syncAlbumLibrary()),
-        dispatch(syncAlbumLibrary),
+        dispatch(syncPlaylistLibrary()),
       ]);
 
-      await localforage.setItem("spotify-library", store.getState().library);
+      await syncLocalforage();
     }
 
     dispatch(setIsLoading(false));
   };
+};
+
+const syncLocalforage = async () => {
+  await localforage.setItem("spotify-library", store.getState().library);
 };
 
 export const {
