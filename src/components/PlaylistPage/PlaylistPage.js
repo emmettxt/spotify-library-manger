@@ -95,6 +95,9 @@ const PlaylistPage = () => {
     console.log(event.target);
     setSelectedTab(event.target.value);
   };
+  const steps = ["Items to Include", "Items to Exclude", "Ordering"];
+  const [currentStep, setCurrentStep] = useState(0);
+  const handleStepClick = (stepNumber) => setCurrentStep(stepNumber);
   return (
     <>
       <article className="prose">
@@ -115,14 +118,36 @@ const PlaylistPage = () => {
           <button
             className={`btn m-3 btn-primary ${
               loadingCreatePlaylist ? "btn-disabled loading" : ""
-            }`}
+            } ${currentStep === steps.length - 1 ? "" : "hidden"}`}
             type="submit"
           >
             Create Playlist
           </button>
+          <button
+            className={`btn m-3 ${
+              loadingCreatePlaylist ? "btn-disabled loading" : ""
+            } ${currentStep === steps.length - 1 ? "hidden" : ""}`}
+            type="button"
+            onClick={() => setCurrentStep((currentStep) => currentStep + 1)}
+          >
+            next
+          </button>
         </div>
       </form>
-      <div className="mt-3">
+      <ul className="steps w-full">
+        {steps.map((stepName, index) => (
+          <li
+            className={`step cursor-pointer ${
+              currentStep >= index ? "step-primary" : "hover:step-secondary"
+            }`}
+            key={index}
+            onClick={() => handleStepClick(index)}
+          >
+            {stepName}
+          </li>
+        ))}
+      </ul>
+      <div className={`mt-3 ${currentStep === 0 ? "" : "hidden"}`}>
         <div className="tabs w-full flex justify-center">
           {tabs.map(({ name, color }, index) => (
             <button
